@@ -46,27 +46,40 @@ const workOutValues = (values) => {
   const onyxPrice = values[3];
   const onyxTokkulPrice = 300000;
 
-  const numOfDeaths = (tokkul / deathTokkulPrice) * deathPrice;
-  const numOfChaos = (tokkul / chaosTokkulPrice) * chaosPrice;
-  const numOfObbyCapes = (tokkul / obsidianCapeTokkulPrice) * obsidianCapePrice;
-  const numOfOnyx = (tokkul / onyxTokkulPrice) * onyxPrice;
+  const numOfDeaths = Math.floor(tokkul / deathTokkulPrice) * deathPrice;
+  const numOfChaos = Math.floor(tokkul / chaosTokkulPrice) * chaosPrice;
+  const numOfObbyCapes =
+    Math.floor(tokkul / obsidianCapeTokkulPrice) * obsidianCapePrice;
+  const numOfOnyx = Math.floor(tokkul / onyxTokkulPrice) * onyxPrice;
+
+  console.log(Math.floor(tokkul / onyxTokkulPrice));
 
   console.log({
     deaths:
-      tokkul > deathTokkulPrice
-        ? convertToInternationalCurrencySystem(numOfDeaths)
+      tokkul >= deathTokkulPrice
+        ? `${convertToInternationalCurrencySystem(
+            Math.floor(tokkul / deathTokkulPrice)
+          )} - Number of Deaths Runes = ${numOfDeaths}`
         : "earn more tokkul",
     chaos:
-      tokkul > chaosTokkulPrice
-        ? convertToInternationalCurrencySystem(numOfChaos)
+      tokkul >= chaosTokkulPrice
+        ? `${convertToInternationalCurrencySystem(
+            numOfChaos
+          )} - Number of Chaos Runes = ${Math.floor(tokkul / chaosTokkulPrice)}`
         : "earn more tokkul",
     obsidiancape:
-      tokkul > obsidianCapeTokkulPrice
-        ? convertToInternationalCurrencySystem(numOfObbyCapes)
+      tokkul >= obsidianCapeTokkulPrice
+        ? `${convertToInternationalCurrencySystem(
+            numOfObbyCapes
+          )} - Number of Obby Capes = ${Math.floor(
+            tokkul / obsidianCapeTokkulPrice
+          )} `
         : "earn more tokkul",
     onyx:
-      tokkul > onyxTokkulPrice
-        ? convertToInternationalCurrencySystem(numOfOnyx)
+      tokkul >= onyxTokkulPrice
+        ? `${convertToInternationalCurrencySystem(
+            numOfOnyx
+          )} - Number of Onyx's = ${Math.floor(tokkul / onyxTokkulPrice)}`
         : "earn more tokkul",
   });
 };
