@@ -1,5 +1,11 @@
 // Param 1 - Number of tokkul
 const runelite = require("runelite");
+const express = require("express");
+const app = express();
+const bodyParser = require("body-parser");
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 require("dotenv").config();
 
 const useragent = process.env.USER_AGENT;
@@ -52,14 +58,14 @@ const workOutValues = (values) => {
     Math.floor(tokkul / obsidianCapeTokkulPrice) * obsidianCapePrice;
   const numOfOnyx = Math.floor(tokkul / onyxTokkulPrice) * onyxPrice;
 
-  console.log(Math.floor(tokkul / onyxTokkulPrice));
-
   console.log({
     deaths:
       tokkul >= deathTokkulPrice
         ? `${convertToInternationalCurrencySystem(
-            Math.floor(tokkul / deathTokkulPrice)
-          )} - Number of Deaths Runes = ${numOfDeaths}`
+            numOfDeaths
+          )} - Number of Deaths Runes = ${Math.floor(
+            tokkul / deathTokkulPrice
+          )}`
         : "earn more tokkul",
     chaos:
       tokkul >= chaosTokkulPrice
@@ -83,3 +89,9 @@ const workOutValues = (values) => {
         : "earn more tokkul",
   });
 };
+
+// app.get("/tokkul/:count", function (req, res) {
+//   return getPrices();
+// });
+
+// app.listen(3000);
