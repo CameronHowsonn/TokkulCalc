@@ -248,10 +248,10 @@ const getPrices = async (type, tokkul) => {
 };
 
 app.get("/:type/:count/:sort/:filter", function (req, res, next) {
-  const tokkul = req.params.count;
+  const tokkul = parseInt(req.params.count);
   const type = req.params.type;
-  const sort = req.params.sort || false;
-  const filter = req.params.filter || false;
+  const sort = req.params.sort === "true";
+  const filter = req.params.filter === "true";
 
   if (!type) {
     res.send({
@@ -270,16 +270,17 @@ app.get("/:type/:count/:sort/:filter", function (req, res, next) {
   Promise.all([getPrices(type, tokkul)])
     .then((values) => {
       const finalData = values[0].filter((element) => element != null); //Some items are not in the runelite api?
+      let sendData;
       if (sort && !filter) {
-        finalData.sort((a, b) => {
+        sendData = finalData.sort((a, b) => {
           return a.totalPriceRaw - b.totalPriceRaw;
         });
       }
       if (filter && !sort) {
-        finalData.filter((item) => item.amount >= 1);
+        sendData = finalData.filter((item) => item.amount >= 1);
       }
       if (filter && sort) {
-        finalData
+        sendData = finalData
           .filter((item) => {
             return item.amount >= 1;
           })
@@ -287,8 +288,7 @@ app.get("/:type/:count/:sort/:filter", function (req, res, next) {
             return a.totalPriceRaw - b.totalPriceRaw;
           });
       }
-      console.log(finalData);
-      res.status(200).json(finalData);
+      res.status(200).json(sendData);
     })
     .catch((err) => {
       console.log(err);
