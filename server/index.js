@@ -230,11 +230,11 @@ const getPrices = async (type, tokkul) => {
     if (itemData) {
       return {
         ...item,
-        price: data[item.id].avgHighPrice || data[item.id].avgLowPrice,
+        price: itemData?.avgHighPrice || itemData?.avgLowPrice,
         amount: Math.floor(tokkul / item.tokkulPrice),
-        totalPrice: convertToInternationalCurrencySystem(
-          data[item.id].avgLowPrice * Math.floor(tokkul / item.tokkulPrice)
-        ),
+        totalPrice:
+          (itemData?.avgLowPrice || itemData?.avgHighPrice) *
+          Math.floor(tokkul / item.tokkulPrice),
         image: `http://cdn.rsbuddy.com/items/${item.id}.png`,
       };
     } else {
