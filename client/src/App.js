@@ -37,7 +37,7 @@ function App() {
           })
           .then((data) => {
             console.log(data);
-            setItems(data);
+            setItems(data.sendData);
             setError(false);
             setIsLoading(false);
           });
