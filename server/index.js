@@ -3,6 +3,7 @@ const runelite = require("runelite");
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
+const PORT = process.env.PORT || 3001;
 
 const oreAndGem = {
   tinOre: {
@@ -263,15 +264,11 @@ app.get("/:type/:count", function (req, res) {
   Promise.all([getPrices(type, tokkul)])
     .then((values) => {
       const finalData = values[0].filter((element) => element != null); //Some items are not in the runelite api?
-      res.send({
-        status: 200,
-        message: "success",
-        data: {
-          ...finalData,
-        },
-      });
+      console.log("Sent response");
+      res.status(200).json(finalData);
     })
     .catch((err) => {
+      console.log(err);
       res.send({
         status: 400,
         message: "failure",
@@ -280,4 +277,4 @@ app.get("/:type/:count", function (req, res) {
     });
 });
 
-app.listen(3000);
+app.listen(PORT);
