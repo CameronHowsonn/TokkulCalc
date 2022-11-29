@@ -197,14 +197,14 @@ require("dotenv").config();
 
 const useragent = process.env.USER_AGENT;
 
-const convertToInternationalCurrencySystem = (labelValue) => {
+const convertToGP = (labelValue) => {
   return Math.abs(Number(labelValue)) >= 1.0e9
     ? (Math.abs(Number(labelValue)) / 1.0e9).toFixed(2) + "B"
     : Math.abs(Number(labelValue)) >= 1.0e6
     ? (Math.abs(Number(labelValue)) / 1.0e6).toFixed(2) + "M"
     : Math.abs(Number(labelValue)) >= 1.0e3
     ? (Math.abs(Number(labelValue)) / 1.0e3).toFixed(2) + "K"
-    : Math.abs(Number(labelValue));
+    : Math.abs(Number(labelValue)) + "gp";
 };
 
 const getPrices = async (type, tokkul) => {
@@ -232,9 +232,10 @@ const getPrices = async (type, tokkul) => {
         ...item,
         price: itemData?.avgHighPrice || itemData?.avgLowPrice,
         amount: Math.floor(tokkul / item.tokkulPrice),
-        totalPrice:
+        totalPrice: convertToGP(
           (itemData?.avgLowPrice || itemData?.avgHighPrice) *
-          Math.floor(tokkul / item.tokkulPrice),
+            Math.floor(tokkul / item.tokkulPrice)
+        ),
         image: `http://cdn.rsbuddy.com/items/${item.id}.png`,
       };
     } else {
@@ -243,9 +244,11 @@ const getPrices = async (type, tokkul) => {
   });
 };
 
-app.get("/:type/:count", function (req, res) {
+app.get("/:type/:count/:sort?/:filter?", function (req, res) {
   const tokkul = req.params.count;
   const type = req.params.type;
+  const sort = req.params.sort || false;
+  const filter = req.params.filter || false;
 
   if (!type) {
     res.send({
@@ -264,7 +267,20 @@ app.get("/:type/:count", function (req, res) {
   Promise.all([getPrices(type, tokkul)])
     .then((values) => {
       const finalData = values[0].filter((element) => element != null); //Some items are not in the runelite api?
-      console.log("Sent response");
+      if (sort) {
+        console.log(sort);
+        finalData.sort((a, b) => {
+          if (a.amount > 0 && b.amount > 0) {
+            console.log(a, b);
+            return (
+              a.totalPrice.replace(/\D/g, "") - b.totalPrice.replace(/\D/g, "")
+            );
+          }
+        });
+      }
+      if (filter) {
+        finalData.filter((item) => item.totalPrice > 0);
+      }
       res.status(200).json(finalData);
     })
     .catch((err) => {
@@ -277,4 +293,6 @@ app.get("/:type/:count", function (req, res) {
     });
 });
 
-app.listen(PORT);
+app.listen(PORT, () => {
+  console.log(`Server listening on ${PORT}`);
+});
