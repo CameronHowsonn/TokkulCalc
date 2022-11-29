@@ -9,6 +9,9 @@ function App() {
   const [type, setType] = useState("ores");
   const [sort, setSort] = useState(false);
   const [hideItems, setHideItems] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [reqs, setReqs] = useState(0);
+  const [error, setError] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -22,39 +25,26 @@ function App() {
     setHideItems(hideItems);
   };
 
-  const getData = async () => {
-    if (tokkul > 0) {
-      await fetch(`/${type}/${tokkul}`)
-        .then((res) => {
-          return res.json();
-        })
-        .then((data) => {
-          if (sort && hideItems) {
-            setItems(
-              data
-                .sort((a, b) => parseInt(a.totalPrice) - parseInt(b.totalPrice))
-                .filter((item) => item.amount > 0)
-            );
-            return;
-          }
-          if (sort) {
-            setItems(
-              data.sort(
-                (a, b) => parseInt(a.totalPrice) - parseInt(b.totalPrice)
-              )
-            );
-            return;
-          }
-          if (hideItems) {
-            setItems(data.filter((item) => item.amount > 0));
-            return;
-          }
-          setItems(data);
-        });
-    }
-  };
-
   useEffect(() => {
+    const getData = async () => {
+      if (tokkul > 0) {
+        setItems([]);
+        setIsLoading(true);
+        setReqs((prev) => prev + 1);
+        await fetch(`/${type}/${tokkul}/${sort}/${hideItems}`)
+          .then((res) => {
+            return res.json();
+          })
+          .then((data) => {
+            console.log(data);
+            setItems(data);
+            setError(false);
+            setIsLoading(false);
+          });
+      } else {
+        setError("Please enter a valid amount of tokkul");
+      }
+    };
     getData();
   }, [tokkul, type, sort, hideItems]);
 
@@ -70,6 +60,8 @@ function App() {
               name="tokkul"
               id="tokkul"
               defalutvalue={tokkul}
+              placeholder="Enter tokkul amount"
+              min="0"
             />
             <select name="type" id="type">
               <option value="ores" defaultValue={true}>
@@ -80,29 +72,42 @@ function App() {
             </select>
           </div>
           <div className="form-group bottom">
-            <label>Sort by total price?</label>
-            <input
-              type="checkbox"
-              name="sort"
-              id="sort"
-              defaultChecked={sort}
-            />
-            <label>Hide items you can't afford?</label>
-            <input
-              type="checkbox"
-              name="hideItems"
-              id="hideItems"
-              defaultChecked={hideItems}
-            />
-            <button type="submit">Submit</button>
+            <div className="group">
+              <label>Sort by total price?</label>
+              <input
+                type="checkbox"
+                name="sort"
+                id="sort"
+                defaultChecked={sort}
+                onChange={(e) => setSort(e.target.checked)}
+              />
+            </div>
+            <div className="group">
+              <label>Hide items you can't afford?</label>
+              <input
+                type="checkbox"
+                name="hideItems"
+                id="hideItems"
+                defaultChecked={hideItems}
+                onChange={(e) => setHideItems(e.target.checked)}
+              />
+            </div>
           </div>
+          <button type="submit">Submit</button>
         </form>
       </div>
-      <ul className="results-container">
-        {items.map((item) => {
-          return <ItemCard item={item} key={item.id} />;
-        })}
-      </ul>
+
+      {error && reqs > 0 && <p className="error">{error}</p>}
+
+      {isLoading && reqs > 0 ? (
+        <div className="loading">Loading...</div>
+      ) : (
+        <ul className="results-container">
+          {items.map((item) => {
+            return <ItemCard item={item} key={item.id} />;
+          })}
+        </ul>
+      )}
     </div>
   );
 }

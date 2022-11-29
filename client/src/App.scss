@@ -1,3 +1,27 @@
+$yellow: #ffd789;
+$yellowHover: #ffd074;
+$black: #14141a;
+$slate: #88869f;
+$card: #1e1e27;
+
+html {
+  background: $black;
+  color: $slate;
+}
+
+button {
+  margin: 2em 0;
+  background-color: $yellow;
+  border: 0;
+  border-radius: 5px;
+  padding: 1em 2em;
+  transition: background-color cubic-bezier(0.455, 0.03, 0.515, 0.955) 0.3s;
+  &:hover {
+    background-color: $yellowHover;
+    cursor: pointer;
+  }
+}
+
 .App {
   text-align: center;
 }
@@ -13,6 +37,29 @@
   .form-group {
     display: flex;
     margin: 1em;
+    label[for="tokkul"] {
+      display: none;
+    }
+
+    .group {
+      margin-right: 2em;
+      input {
+        margin-left: 1em;
+      }
+    }
+
+    select,
+    input[type="number"] {
+      padding: 1em;
+      border-radius: 5px;
+      background-color: transparent;
+      border: none;
+      color: $slate;
+      transition: background-color cubic-bezier(0.455, 0.03, 0.515, 0.955) 0.3s;
+      &:hover {
+        background-color: rgba($slate, 0.1);
+      }
+    }
     &.input {
       display: flex;
       gap: 1em;
@@ -30,8 +77,31 @@
 .results-container {
   display: flex;
   flex-wrap: wrap;
+  gap: 2em;
+}
 
-  li {
-    flex: 0 0 calc(100% / 5);
+.item-card {
+  background-color: $card;
+  border-radius: 5px;
+  flex: 0 0 calc(calc(100% / 5) - 6em);
+  padding: 2em;
+  box-shadow: 0 14px 14px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.12);
+  .item-card-image {
+    background-color: ($black);
+    aspect-ratio: 1/1;
+    max-width: 4em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    border-radius: 5px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   }
+
+  p {
+    margin: 0;
+  }
+}
+
+.error {
 }
