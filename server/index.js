@@ -204,7 +204,7 @@ const convertToGP = (labelValue) => {
     ? (Math.abs(Number(labelValue)) / 1.0e6).toFixed(2) + "M"
     : Math.abs(Number(labelValue)) >= 1.0e3
     ? (Math.abs(Number(labelValue)) / 1.0e3).toFixed(2) + "K"
-    : Math.abs(Number(labelValue)) + "gp";
+    : Math.abs(Number(labelValue)) + "GP";
 };
 
 const getPrices = async (type, tokkul) => {
@@ -236,6 +236,9 @@ const getPrices = async (type, tokkul) => {
           (itemData?.avgLowPrice || itemData?.avgHighPrice) *
             Math.floor(tokkul / item.tokkulPrice)
         ),
+        totalPriceRaw:
+          (itemData?.avgLowPrice || itemData?.avgHighPrice) *
+          Math.floor(tokkul / item.tokkulPrice),
         image: `http://cdn.rsbuddy.com/items/${item.id}.png`,
       };
     } else {
@@ -244,7 +247,7 @@ const getPrices = async (type, tokkul) => {
   });
 };
 
-app.get("/:type/:count/:sort?/:filter?", function (req, res) {
+app.get("/:type/:count/:sort/:filter", function (req, res, next) {
   const tokkul = req.params.count;
   const type = req.params.type;
   const sort = req.params.sort || false;
@@ -267,20 +270,24 @@ app.get("/:type/:count/:sort?/:filter?", function (req, res) {
   Promise.all([getPrices(type, tokkul)])
     .then((values) => {
       const finalData = values[0].filter((element) => element != null); //Some items are not in the runelite api?
-      if (sort) {
-        console.log(sort);
+      if (sort && !filter) {
         finalData.sort((a, b) => {
-          if (a.amount > 0 && b.amount > 0) {
-            console.log(a, b);
-            return (
-              a.totalPrice.replace(/\D/g, "") - b.totalPrice.replace(/\D/g, "")
-            );
-          }
+          return a.totalPriceRaw - b.totalPriceRaw;
         });
       }
-      if (filter) {
-        finalData.filter((item) => item.totalPrice > 0);
+      if (filter && !sort) {
+        finalData.filter((item) => item.amount >= 1);
       }
+      if (filter && sort) {
+        finalData
+          .filter((item) => {
+            return item.amount >= 1;
+          })
+          .sort((a, b) => {
+            return a.totalPriceRaw - b.totalPriceRaw;
+          });
+      }
+      console.log(finalData);
       res.status(200).json(finalData);
     })
     .catch((err) => {
